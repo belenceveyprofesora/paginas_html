@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Belén Cevey — tecnología, matemática, programación e inteligencia artificial aplicada a problemas reales.">
+  <meta name="theme-color" content="#101b2b">
+  <title>Belén Cevey — Tecnología con sentido</title>
+  <style>
+    :root {
+      --bg: #f4f2ed;
+      --paper: #fffefa;
+      --ink: #172536;
+      --muted: #667381;
+      --navy: #101b2b;
+      --navy-2: #182a40;
+      --teal: #2d8c87;
+      --lime: #c9e58b;
+      --line: rgba(23,37,54,.13);
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --radius: 22px;
+      --shadow: 0 20px 55px rgba(16,27,43,.09);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; }
+    a { color: inherit; }
+    .wrap { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
+    .topbar { position: sticky; top: 0; z-index: 20; background: rgba(244,242,237,.88); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+    .nav { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { text-decoration: none; font-weight: 800; letter-spacing: -.04em; font-size: 1.12rem; }
+    .brand span { color: var(--teal); }
+    .navlinks { display: flex; gap: 25px; align-items: center; }
+    .navlinks a { font-size: .86rem; text-decoration: none; color: var(--muted); transition: color .2s; }
+    .navlinks a:hover { color: var(--teal); }
+    .nav-cta { border: 1px solid var(--ink); padding: 9px 15px; border-radius: 999px; color: var(--ink)!important; }
+    .menu-btn { display: none; border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 8px 11px; color: var(--ink); font: inherit; }
+    .hero { background: var(--navy); color: #f8f7f2; position: relative; overflow: hidden; }
+    .hero:before { content:""; position:absolute; width:520px; height:520px; border:1px solid rgba(201,229,139,.18); border-radius:50%; right:-110px; top:-230px; box-shadow: 0 0 0 55px rgba(201,229,139,.035), 0 0 0 110px rgba(201,229,139,.025); }
+    .hero:after { content:""; position:absolute; width:280px; height:280px; border-radius:50%; background: radial-gradient(circle, rgba(45,140,135,.28), transparent 68%); right:18%; bottom:-170px; }
+    .hero-grid { min-height: 590px; display: grid; grid-template-columns: 1.25fr .75fr; align-items: center; gap: 55px; padding-block: 86px; position: relative; z-index: 1; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .18em; font-size: .72rem; font-weight: 750; color: var(--lime); }
+    h1 { font-size: clamp(3.5rem, 8vw, 6.7rem); line-height: .98; letter-spacing: -.075em; margin: 20px 0 22px; font-weight: 750; }
+    h1 span { display: block; color: var(--lime); font-family: var(--serif); font-weight: 400; font-style: italic; letter-spacing: -.065em; }
+    .hero-copy { max-width: 610px; font-size: clamp(1.05rem, 2vw, 1.25rem); color: #c6d0d9; line-height: 1.65; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:34px; }
+    .btn { display:inline-flex; align-items:center; gap:10px; padding:13px 19px; border-radius:999px; text-decoration:none; font-weight:700; font-size:.9rem; transition: transform .2s, background .2s; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: var(--lime); color: var(--navy); }
+    .btn-ghost { border:1px solid rgba(255,255,255,.28); color:#fff; }
+    .hero-art { display:flex; justify-content:center; align-items:center; min-height:330px; }
+    .orbit { width:min(340px, 100%); aspect-ratio:1; border:1px solid rgba(201,229,139,.35); border-radius:50%; display:grid; place-items:center; position:relative; }
+    .orbit:before,.orbit:after { content:""; position:absolute; border:1px solid rgba(201,229,139,.22); border-radius:50%; inset:28px; }
+    .orbit:after { inset:62px; border-style:dashed; }
+    .monogram { width:190px; height:190px; border-radius:50%; display:grid; place-items:center; background:linear-gradient(145deg,#d6e9a5,#5ca9a0); color:var(--navy); font: 4.2rem var(--serif); letter-spacing:-.1em; box-shadow:0 25px 65px rgba(0,0,0,.25); }
+    .orbit-tag { position:absolute; padding:8px 12px; border:1px solid rgba(255,255,255,.2); background:#17283b; color:#dce6e9; border-radius:999px; font-size:.72rem; }
+    .tag-a { top:24px; left:4px; } .tag-b { right:-18px; top:42%; } .tag-c { bottom:28px; left:12px; }
+    section { padding: 100px 0; }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:30px; margin-bottom:42px; }
+    .kicker { color:var(--teal); font-size:.72rem; font-weight:800; letter-spacing:.17em; text-transform:uppercase; }
+    h2 { font-size:clamp(2.3rem,5vw,4rem); letter-spacing:-.065em; line-height:1.05; margin:12px 0 0; }
+    .section-intro { max-width:390px; color:var(--muted); margin:0; }
+    .about-grid { display:grid; grid-template-columns:.8fr 1.2fr; gap:70px; align-items:start; }
+    .about-statement { background:var(--navy-2); color:#f6f5ef; border-radius:var(--radius); padding:32px; min-height:310px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow); }
+    .about-statement p { font:clamp(1.55rem,3vw,2.15rem)/1.25 var(--serif); margin:0; }
+    .about-statement small { color:var(--lime); letter-spacing:.12em; text-transform:uppercase; font-size:.68rem; }
+    .about-text p { color:#536171; font-size:1.05rem; margin:0 0 18px; }
+    .about-text strong { color:var(--ink); }
+    .skills { background:#e9e8e1; }
+    .skill-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .skill-card { background:var(--paper); padding:25px; border-radius:18px; border:1px solid rgba(23,37,54,.06); min-height:205px; }
+    .skill-number { color:var(--teal); font:italic 1.2rem var(--serif); }
+    .skill-card h3 { margin:16px 0 9px; font-size:1.12rem; letter-spacing:-.025em; }
+    .skill-card p { margin:0; color:var(--muted); font-size:.91rem; }
+    .pill-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+    .pill { background:#eef2ed; color:#435563; border-radius:999px; padding:7px 11px; font-size:.78rem; }
+    .experience-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+    .feature-card { background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:30px; }
+    .feature-card.dark { background:var(--navy); color:#f8f7f2; border:0; }
+    .feature-card h3 { font-size:1.45rem; margin:8px 0 12px; letter-spacing:-.04em; }
+    .feature-card p { color:var(--muted); margin:0; }
+    .feature-card.dark p { color:#c2ccd5; }
+    .meta { color:var(--teal); text-transform:uppercase; letter-spacing:.14em; font-weight:800; font-size:.68rem; }
+    .feature-card.dark .meta { color:var(--lime); }
+    .project-list { margin-top:24px; display:grid; gap:12px; }
+    .project { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:17px 0; border-top:1px solid var(--line); }
+    .project strong { display:block; }
+    .project span { color:var(--muted); font-size:.86rem; }
+    .project-arrow { color:var(--teal); font-size:1.2rem; }
+    .interests { background:var(--navy); color:#f8f7f2; }
+    .interests .section-intro { color:#b9c4ce; }
+    .interest-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:40px; }
+    .interest { min-height:160px; border:1px solid rgba(255,255,255,.16); border-radius:18px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; }
+    .interest .symbol { font:2rem var(--serif); color:var(--lime); }
+    .interest strong { font-size:1.02rem; }
+    .contact { background:var(--lime); }
+    .contact-grid { display:grid; grid-template-columns:1fr auto; align-items:end; gap:35px; }
+    .contact h2 { max-width:650px; }
+    .contact p { max-width:520px; color:#43544d; margin:20px 0 0; }
+    .contact-links { display:flex; flex-direction:column; gap:10px; min-width:220px; }
+    .contact-links a { text-decoration:none; font-weight:750; border-bottom:1px solid rgba(23,37,54,.3); padding:9px 0; display:flex; justify-content:space-between; gap:20px; }
+    footer { background:var(--navy); color:#aebbc6; padding:24px 0; font-size:.8rem; }
+    footer .wrap { display:flex; justify-content:space-between; gap:20px; }
+    .backtop { text-decoration:none; color:var(--lime); }
+    @media (max-width:800px) {
+      .hero-grid { grid-template-columns:1fr; padding-block:72px; gap:25px; }
+      .hero-art { min-height:260px; }
+      .orbit { width:260px; }
+      .monogram { width:145px; height:145px; font-size:3.3rem; }
+      .about-grid { grid-template-columns:1fr; gap:24px; }
+      .skill-grid { grid-template-columns:repeat(2,1fr); }
+      .interest-grid { grid-template-columns:repeat(2,1fr); }
+      .section-head { display:block; }
+      .section-intro { margin-top:18px; }
+    }
+    @media (max-width:560px) {
+      .wrap { width:min(100% - 32px, 1120px); }
+      .nav { min-height:64px; }
+      .menu-btn { display:block; }
+      .navlinks { display:none; position:absolute; top:64px; left:0; right:0; padding:18px 24px 22px; background:var(--bg); border-bottom:1px solid var(--line); flex-direction:column; align-items:stretch; gap:15px; }
+      .navlinks.open { display:flex; }
+      .nav-cta { text-align:center; }
+      section { padding:72px 0; }
+      .hero-grid { min-height:auto; padding-block:68px 55px; }
+      h1 { font-size:3.65rem; }
+      .skill-grid,.experience-grid { grid-template-columns:1fr; }
+      .skill-card { min-height:0; }
+      .interest-grid { gap:10px; }
+      .interest { min-height:135px; padding:17px; }
+      .contact-grid { grid-template-columns:1fr; }
+      .contact-links { max-width:100%; }
+      footer .wrap { flex-direction:column; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } *,*:before,*:after { transition:none!important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav wrap" aria-label="Navegación principal">
+      <a class="brand" href="#inicio">Belén<span>.</span></a>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navLinks">Menú</button>
+      <div class="navlinks" id="navLinks">
+        <a href="#sobre-mi">Sobre mí</a><a href="#conocimientos">Conocimientos</a><a href="#experiencia">Experiencia</a><a href="#intereses">Intereses</a><a class="nav-cta" href="#contacto">Contacto ↗</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Tecnología · pensamiento · transformación</div>
+          <h1>Belén <span>Cevey.</span></h1>
+          <p class="hero-copy">Conecto ideas, tecnología y personas para convertir problemas reales en soluciones digitales.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#experiencia">Conocé mi recorrido <span>↘</span></a>
+            <a class="btn btn-ghost" href="https://www.linkedin.com/in/belencevey/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+          </div>
+        </div>
+        <div class="hero-art" aria-label="Identidad visual con las iniciales BC">
+          <div class="orbit">
+            <span class="orbit-tag tag-a">Sistemas</span><span class="orbit-tag tag-b">IA aplicada</span><span class="orbit-tag tag-c">Matemática</span>
+            <div class="monogram">BC</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sobre-mi">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="kicker">01 / Quién soy</div><h2>Sobre mí Belen Cevey DNI 31.5073.315 - calle Siempre viva 444</h2></div>
+          <p class="section-intro">Una mirada que combina experiencia técnica, curiosidad intelectual y vocación por compartir conocimiento.</p>
+        </div>
+        <div class="about-grid">
+          <div class="about-statement">
+            <small>Mi forma de trabajar</small>
+            <p>La tecnología tiene sentido cuando ayuda a las personas a pensar, decidir y hacer mejor.</p>
+            <small>Personas primero. Sistemas con propósito.</small>
+          </div>
+          <div class="about-text">
+            <p>Soy una profesional de tecnología con alrededor de <strong>20 años de experiencia en sistemas</strong>. Mi recorrido atraviesa plataformas empresariales, desarrollo, gestión de información, automatización y, más recientemente, la incorporación práctica de inteligencia artificial en el trabajo.</p>
+            <p>Me interesa entender cómo funcionan las cosas: desarmar problemas complejos, encontrar su estructura y transformarlos en soluciones concretas. Disfruto especialmente el punto de encuentro entre el pensamiento lógico, la tecnología y las necesidades reales de las personas.</p>
+            <p>También trabajo en formación y acompañamiento: enseño herramientas digitales e IA buscando que cada persona pueda llevarse algo útil, aplicable y propio, no solamente una lista de conceptos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="skills" id="conocimientos">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="kicker">02 / Lo que hago</div><h2>Conocimientos y habilidades</h2></div>
+          <p class="section-intro">Una trayectoria amplia, desde los sistemas empresariales hasta las nuevas formas de crear con inteligencia artificial.</p>
+        </div>
+        <div class="skill-grid">
+          <article class="skill-card"><div class="skill-number">01</div><h3>Sistemas empresariales</h3><p>Experiencia con plataformas corporativas y procesos de negocio en organizaciones.</p><div class="pill-list"><span class="pill">SAP Enterprise Portal</span><span class="pill">SAP HCM</span><span class="pill">SAP SRM</span><span class="pill">Dynamics CRM</span></div></article>
+          <article class="skill-card"><div class="skill-number">02</div><h3>Desarrollo y programación</h3><p>Base técnica para comprender, diseñar y construir soluciones de software.</p><div class="pill-list"><span class="pill">.NET</span><span class="pill">C#</span><span class="pill">HTML</span><span class="pill">CSS</span><span class="pill">JavaScript</span></div></article>
+          <article class="skill-card"><div class="skill-number">03</div><h3>Microsoft 365</h3><p>Soluciones de colaboración, gestión documental, aplicaciones y automatización.</p><div class="pill-list"><span class="pill">SharePoint</span><span class="pill">Power Apps</span><span class="pill">Power Automate</span><span class="pill">Forms</span></div></article>
+          <article class="skill-card"><div class="skill-number">04</div><h3>Inteligencia artificial</h3><p>IA aplicada a tareas, procesos, creación de herramientas y aprendizaje.</p><div class="pill-list"><span class="pill">Copilot</span><span class="pill">Agentes</span><span class="pill">Prompting</span><span class="pill">No-code</span></div></article>
+          <article class="skill-card"><div class="skill-number">05</div><h3>Análisis y diseño</h3><p>Modelado de problemas, comprensión de procesos y traducción de necesidades a soluciones.</p><div class="pill-list"><span class="pill">Análisis funcional</span><span class="pill">Procesos</span><span class="pill">Arquitectura de soluciones</span></div></article>
+          <article class="skill-card"><div class="skill-number">06</div><h3>Enseñanza y comunicación</h3><p>Diseño de experiencias prácticas para públicos con distintos niveles de conocimiento.</p><div class="pill-list"><span class="pill">Capacitación</span><span class="pill">Mentoría</span><span class="pill">Divulgación tecnológica</span></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="experiencia">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="kicker">03 / Recorrido</div><h2>Experiencia y proyectos</h2></div>
+          <p class="section-intro">De los sistemas de grandes organizaciones a la creación de productos digitales y la formación en tecnología.</p>
+        </div>
+        <div class="experience-grid">
+          <article class="feature-card dark">
+            <div class="meta">Experiencia profesional</div>
+            <h3>De los sistemas a la transformación digital</h3>
+            <p>Un recorrido de aproximadamente dos décadas trabajando con tecnología, plataformas empresariales, desarrollo y soluciones para organizaciones. Incluye experiencia en SAP, Dynamics CRM, .NET y ecosistemas Microsoft 365.</p>
+          </article>
+          <article class="feature-card">
+            <div class="meta">Formación y docencia</div>
+            <h3>La tecnología también se enseña haciendo</h3>
+            <p>Capacitación en Microsoft 365 e inteligencia artificial, con foco en ejercicios reales, automatización y herramientas que las personas puedan aplicar en su trabajo. Participación docente en propuestas de formación en IA para no programadores.</p>
+          </article>
+        </div>
+        <div class="project-list">
+          <div class="project"><div><strong>IusOrg</strong><span>Plataforma digital para acompañar la organización y gestión de asociaciones civiles. Proyecto reconocido en ProBono 2025.</span></div><span class="project-arrow">↗</span></div>
+          <div class="project"><div><strong>Buscame</strong><span>Concepto de identificación QR para facilitar la recuperación de objetos perdidos, con foco en privacidad.</span></div><span class="project-arrow">↗</span></div>
+          <div class="project"><div><strong>Costeros</strong><span>Proyecto de acceso y organización de información pública del ámbito legislativo local.</span></div><span class="project-arrow">↗</span></div>
+          <div class="project"><div><strong>Herramientas educativas digitales</strong><span>Aplicaciones web y recursos interactivos para aprender, practicar y resolver problemas concretos.</span></div><span class="project-arrow">↗</span></div>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);margin-top:14px">Los nombres de proyectos se presentan como referencias descriptivas; los enlaces públicos se incorporarán cuando estén definidos.</p>
+      </div>
+    </section>
+
+    <section class="interests" id="intereses">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="kicker">04 / Curiosidad permanente</div><h2>Lo que me interesa</h2></div>
+          <p class="section-intro">La curiosidad no termina en el trabajo: también es una forma de mirar el mundo.</p>
+        </div>
+        <div class="interest-grid">
+          <div class="interest"><span class="symbol">∑</span><strong>Matemática</strong></div>
+          <div class="interest"><span class="symbol">⌘</span><strong>Programación</strong></div>
+          <div class="interest"><span class="symbol">◌</span><strong>Física y ciencias</strong></div>
+          <div class="interest"><span class="symbol">◇</span><strong>Filosofía</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contacto">
+      <div class="wrap contact-grid">
+        <div>
+          <div class="kicker">05 / Contacto</div>
+          <h2>Las buenas ideas empiezan con una conversación.</h2>
+          <p>Si querés conversar sobre tecnología, inteligencia artificial, formación o desarrollo de proyectos, podés encontrarme en LinkedIn.</p>
+        </div>
+        <div class="contact-links">
+          <a href="https://www.linkedin.com/in/belencevey/" target="_blank" rel="noopener noreferrer">LinkedIn <span>↗</span></a>
+          <a href="https://belencevey.com.ar/" target="_blank" rel="noopener noreferrer">Sitio personal <span>↗</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap"><span>© <span id="year"></span> Belén Cevey</span><a class="backtop" href="#inicio">Volver arriba ↑</a></div></footer>
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const navLinks = document.getElementById('navLinks');
+    menuBtn.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    }));
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

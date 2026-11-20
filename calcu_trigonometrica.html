@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora trigonométrica interactiva</title>
+<style>
+:root{
+  --sin:#2563eb; --cos:#c2410c; --tan:#047857;
+  --sin-bg:#eaf1fe; --cos-bg:#fdf0e9; --tan-bg:#e7f5ef;
+  --ink:#172033; --muted:#556075; --bg:#f3f5f9; --card:#fff; --line:#e1e6ee; --soft:#f7f8fb;
+  --accent:#3730a3; --err:#b42318; --errbg:#fef3f2; --warn:#93370d; --warnbg:#fffaeb; --ok:#067647; --okbg:#ecfdf3;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:15px}
+.wrap{max-width:1480px;margin:0 auto;padding:0 20px}
+header.top{background:#fff;border-bottom:1px solid var(--line);margin-bottom:20px}
+header.top .wrap{padding-top:18px;padding-bottom:16px}
+h1{font-size:1.55rem;margin:0 0 4px;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted)}
+.grid{display:grid;gap:18px;grid-template-columns:minmax(310px,380px) minmax(0,1.15fr) minmax(0,1fr);align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.card h2{font-size:1.06rem;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.num{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:8px;background:var(--ink);color:#fff;font-size:.82rem;font-weight:700}
+.sub{color:var(--muted);margin:-6px 0 10px;font-size:.92rem}
+label,.lbl{font-weight:600;font-size:.88rem;display:block;margin:14px 0 6px}
+.fn-group{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fn{--c:var(--sin);--cb:var(--sin-bg);border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 6px;cursor:pointer;font:inherit;color:var(--ink);min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;transition:border-color .15s,background .15s}
+.fn b{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:.95rem;color:var(--c)}
+.fn small{color:var(--muted);font-size:.75rem;margin-top:3px}
+.fn:hover{border-color:var(--c)}
+.fn[aria-checked="true"]{background:var(--cb);border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
+.fn[data-base="cos"]{--c:var(--cos);--cb:var(--cos-bg)}
+.fn[data-base="tan"]{--c:var(--tan);--cb:var(--tan-bg)}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;width:100%}
+.seg button{flex:1;border:0;background:#fff;font:inherit;font-weight:600;padding:10px 8px;cursor:pointer;color:var(--muted);min-height:44px}
+.seg button+button{border-left:1.5px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.inwrap{display:flex;align-items:stretch;border:1.5px solid #c9d1de;border-radius:10px;background:#fff;overflow:hidden}
+.inwrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px #e0e7ff}
+.inwrap input{flex:1;min-width:0;border:0;outline:0;font:inherit;font-size:1.25rem;padding:10px 12px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;background:transparent;color:var(--ink)}
+.inwrap .suffix{display:grid;place-items:center;padding:0 12px;background:var(--soft);color:var(--muted);font-weight:700;border-left:1px solid var(--line);min-width:52px}
+.keys{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.keys button{border:1px solid var(--line);background:var(--soft);border-radius:8px;min-width:44px;min-height:36px;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;cursor:pointer;color:var(--ink)}
+.keys button:hover{background:#eef1f6}
+.hint{color:var(--muted);font-size:.8rem;margin:6px 0 0}
+select{font:inherit;padding:8px 10px;border:1.5px solid #c9d1de;border-radius:10px;background:#fff;color:var(--ink);min-height:40px}
+.prec{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:.88rem;font-weight:600}
+.prec label{margin:0}
+.actions{display:flex;gap:10px;margin-top:16px}
+.btn{font:inherit;font-weight:700;border-radius:10px;padding:10px 16px;min-height:44px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;flex:1}
+.btn.primary:hover{background:#312a8f}
+.btn:hover{border-color:#b9c2d1}
+.examples{margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.86rem;font-weight:600;border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:6px 12px;min-height:36px;cursor:pointer;color:var(--ink)}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.msg{border-radius:10px;padding:10px 12px;margin-top:14px;font-size:.9rem}
+.msg.error{background:var(--errbg);color:var(--err);border:1px solid #fecdca}
+.msg.warn{background:var(--warnbg);color:var(--warn);border:1px solid #fedf89}
+.msg.info{background:#eff4ff;color:#1d3a8a;border:1px solid #c7d7fe}
+.result{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--soft)}
+.result .rf{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.9rem}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.result .op{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.02rem;margin:8px 0 2px;word-break:break-word}
+.result .big{font-size:2rem;font-weight:800;letter-spacing:-.02em;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all;line-height:1.15}
+.result dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:12px 0 0;font-size:.88rem}
+.result dt{color:var(--muted)}
+.result dd{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-word}
+.empty{color:var(--muted);font-size:.9rem}
+svg{display:block;width:100%;height:auto;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:18px;height:3px;border-radius:2px;display:inline-block}
+.sw.dash{background:repeating-linear-gradient(90deg,#8a94a6 0 4px,transparent 4px 7px)!important;height:2px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.9rem;margin-top:10px}
+.kv dt{display:flex;align-items:center;gap:7px;color:var(--muted)}
+.kv dd{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-word}
+.dir{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.dir span{font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted)}
+.dir span.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.steps{margin:0;padding-left:22px}
+.steps li{margin:6px 0}
+.steps code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.88em}
+.full{margin-top:18px}
+.pgrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.8fr) minmax(0,1fr);gap:20px;align-items:start}
+.formulas{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:12px}
+.formula{white-space:nowrap}
+.formula{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--soft);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem;text-align:center}
+.formula.main{grid-column:1/-1;font-size:1.1rem;font-weight:700;background:#fff}
+.formula .s{color:var(--sin);font-weight:700}.formula .c{color:var(--cos);font-weight:700}.formula .t{color:var(--tan);font-weight:700}
+.pin{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pin .f label{margin:0 0 5px}
+.pin input{width:100%;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.05rem;border:1.5px solid #c9d1de;border-radius:10px;padding:9px 10px;min-height:44px;color:var(--ink);background:#fff}
+.pin input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px #e0e7ff}
+.pin input.auto{background:#f0fdf6;border-style:dashed;border-color:#7fc6a0}
+.lco{color:var(--sin)}.lca{color:var(--cos)}.lh{color:var(--ink)}
+.tag{font-size:.7rem;font-weight:700;background:#dcfae6;color:var(--ok);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+.prow{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:.9rem}
+.prow dt{color:var(--muted)}
+.prow dd{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-word}
+footer{color:var(--muted);font-size:.82rem;text-align:center;padding:24px 0 34px}
+@media (max-width:1240px){
+  .grid{grid-template-columns:minmax(300px,380px) minmax(0,1fr)}
+  .grid .calc{grid-row:span 2}
+  .pgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .pgrid .pres{grid-column:1/-1}
+}
+@media (max-width:780px){
+  .wrap{padding:0 12px}
+  .grid,.pgrid{grid-template-columns:minmax(0,1fr)}
+  .grid .calc{grid-row:auto}
+  .card{padding:14px}
+  .result .big{font-size:1.6rem}
+  h1{font-size:1.3rem}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>Calculadora trigonométrica interactiva</h1>
+    <p>Calculá funciones trigonométricas y observá qué representa cada resultado en la curva y en la circunferencia unitaria.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="grid">
+    <!-- 1. CALCULADORA -->
+    <div class="card calc">
+      <h2><span class="num">1</span>Calculadora trigonométrica</h2>
+      <span class="lbl" id="fnLbl">Función</span>
+      <div class="fn-group" role="radiogroup" aria-labelledby="fnLbl">
+        <button type="button" class="fn" role="radio" data-fn="sin" data-base="sin"><b>sin(θ)</b><small>Seno</small></button>
+        <button type="button" class="fn" role="radio" data-fn="cos" data-base="cos"><b>cos(θ)</b><small>Coseno</small></button>
+        <button type="button" class="fn" role="radio" data-fn="tan" data-base="tan"><b>tan(θ)</b><small>Tangente</small></button>
+        <button type="button" class="fn" role="radio" data-fn="asin" data-base="sin"><b>arcsin(x)</b><small>Arcoseno</small></button>
+        <button type="button" class="fn" role="radio" data-fn="acos" data-base="cos"><b>arccos(x)</b><small>Arcocoseno</small></button>
+        <button type="button" class="fn" role="radio" data-fn="atan" data-base="tan"><b>arctan(x)</b><small>Arcotangente</small></button>
+      </div>
+
+      <span class="lbl" id="unitLbl">Unidad de ángulo</span>
+      <div class="seg" role="group" aria-labelledby="unitLbl">
+        <button type="button" data-unit="deg">Grados (DEG)</button>
+        <button type="button" data-unit="rad">Radianes (RAD)</button>
+      </div>
+
+      <label for="val" id="valLabel">Ángulo θ</label>
+      <div class="inwrap">
+        <input id="val" type="text" inputmode="text" autocomplete="off" spellcheck="false">
+        <span class="suffix" id="valSuffix">°</span>
+      </div>
+      <div class="keys" aria-label="Insertar símbolos">
+        <button type="button" data-ins="π" aria-label="Insertar pi">π</button>
+        <button type="button" data-ins="√" aria-label="Insertar raíz cuadrada">√</button>
+        <button type="button" data-ins="/" aria-label="Insertar división">/</button>
+        <button type="button" data-ins="-" aria-label="Insertar signo menos">−</button>
+        <button type="button" data-ins="(" aria-label="Insertar paréntesis de apertura">(</button>
+        <button type="button" data-ins=")" aria-label="Insertar paréntesis de cierre">)</button>
+      </div>
+      <p class="hint" id="valHint">Admite expresiones: 30, -45, 2π/3, √2/2, 1,5</p>
+
+      <div class="prec">
+        <label for="prec">Precisión</label>
+        <select id="prec">
+          <option value="2">2 decimales</option>
+          <option value="4">4 decimales</option>
+          <option value="6" selected>6 decimales</option>
+          <option value="8">8 decimales</option>
+          <option value="10">10 decimales</option>
+          <option value="12">12 decimales</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="btnCalc">Calcular</button>
+        <button type="button" class="btn" id="btnClear">Limpiar</button>
+      </div>
+
+      <div class="examples">
+        <span class="lbl" style="margin-top:0">Ejemplos rápidos</span>
+        <div class="chips" id="exChips"></div>
+      </div>
+
+      <div id="msg" class="msg" role="alert" hidden></div>
+      <div id="result" class="result" aria-live="polite"></div>
+    </div>
+
+    <!-- 2. GRÁFICO CARTESIANO -->
+    <div class="card">
+      <h2><span class="num">2</span>Gráfico de la función</h2>
+      <p class="sub" id="plotSub"></p>
+      <svg id="plot" viewBox="0 0 540 390" role="img" aria-label="Gráfico cartesiano de la función"></svg>
+      <div class="legend" id="plotLegend"></div>
+    </div>
+
+    <!-- 3. CIRCUNFERENCIA -->
+    <div class="card">
+      <h2><span class="num">3</span>Circunferencia trigonométrica</h2>
+      <p class="sub">Radio 1 y centro (0, 0). El punto P = (cos θ, sin θ).</p>
+      <svg id="circle" viewBox="0 0 380 380" role="img" aria-label="Circunferencia trigonométrica unitaria"></svg>
+      <div class="dir" id="dirChips">
+        <span data-dir="pos">↺ Sentido positivo (antihorario)</span>
+        <span data-dir="neg">↻ Sentido negativo (horario)</span>
+      </div>
+      <dl class="kv" id="circleInfo"></dl>
+    </div>
+  </section>
+
+  <section class="card full">
+    <h2><span class="num">i</span>Procedimiento matemático</h2>
+    <ol class="steps" id="steps"></ol>
+  </section>
+
+  <!-- 5. PITÁGORAS -->
+  <section class="card full" id="pyth">
+    <h2><span class="num">4</span>Relaciones trigonométricas y Teorema de Pitágoras</h2>
+    <div class="pgrid">
+      <div>
+        <svg id="tri" viewBox="0 0 460 320" role="img" aria-label="Triángulo rectángulo"></svg>
+        <div class="formulas">
+          <div class="formula main">H² = CO² + CA²</div>
+          <div class="formula">CO = √(H² − CA²)</div>
+          <div class="formula">CA = √(H² − CO²)</div>
+          <div class="formula"><span class="s">sin(θ)</span> = CO / H</div>
+          <div class="formula"><span class="c">cos(θ)</span> = CA / H</div>
+          <div class="formula"><span class="t">tan(θ)</span> = CO / CA</div>
+        </div>
+      </div>
+      <div>
+        <p class="sub" style="margin:0 0 12px">Ingresá dos lados, o un lado y el ángulo θ (agudo). El dato faltante se calcula solo y aparece marcado como <span class="tag" style="margin:0">calculado</span>.</p>
+        <div class="pin">
+          <div class="f"><label for="pCO" class="lco">Cateto opuesto (CO)</label><input id="pCO" data-k="co" type="text" inputmode="decimal" autocomplete="off"></div>
+          <div class="f"><label for="pCA" class="lca">Cateto adyacente (CA)</label><input id="pCA" data-k="ca" type="text" inputmode="decimal" autocomplete="off"></div>
+          <div class="f"><label for="pH" class="lh">Hipotenusa (H)</label><input id="pH" data-k="h" type="text" inputmode="decimal" autocomplete="off"></div>
+          <div class="f"><label for="pAng">Ángulo θ (grados)</label><input id="pAng" data-k="ang" type="text" inputmode="decimal" autocomplete="off"></div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" id="pCalc">Calcular</button>
+          <button type="button" class="btn" id="pClear">Limpiar</button>
+        </div>
+        <div class="examples">
+          <span class="lbl" style="margin-top:0">Ejemplos</span>
+          <div class="chips">
+            <button type="button" class="chip" data-pex='{"co":"3","ca":"4"}'>CO 3 · CA 4</button>
+            <button type="button" class="chip" data-pex='{"h":"13","co":"5"}'>H 13 · CO 5</button>
+            <button type="button" class="chip" data-pex='{"h":"2","ca":"√3"}'>H 2 · CA √3</button>
+            <button type="button" class="chip" data-pex='{"h":"10","ang":"30"}'>H 10 · θ 30°</button>
+            <button type="button" class="chip" data-pex='{"ca":"1","ang":"45"}'>CA 1 · θ 45°</button>
+          </div>
+        </div>
+        <div id="pMsg" class="msg" role="alert" hidden></div>
+      </div>
+      <div class="pres">
+        <span class="lbl" style="margin-top:0">Resultados</span>
+        <dl class="prow" id="pRes"></dl>
+        <span class="lbl">Procedimiento</span>
+        <ol class="steps" id="pSteps"></ol>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>Calculadora trigonométrica · HTML, CSS y JavaScript sin dependencias · Los cálculos internos de JavaScript se hacen en radianes.</footer>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const NS='http://www.w3.org/2000/svg';
+const PI=Math.PI, TAU=2*PI, R2=Math.SQRT2/2, R3=Math.sqrt(3)/2, T30=Math.sqrt(3)/3, T60=Math.sqrt(3);
+const COL={sin:'#2563eb',cos:'#c2410c',tan:'#047857',ink:'#172033',muted:'#556075',grid:'#e8ecf2',axis:'#8a94a6'};
+const FN={
+  sin:{name:'Seno',sym:'sin',inv:false,base:'sin'},
+  cos:{name:'Coseno',sym:'cos',inv:false,base:'cos'},
+  tan:{name:'Tangente',sym:'tan',inv:false,base:'tan'},
+  asin:{name:'Arcoseno',sym:'arcsin',inv:true,base:'sin'},
+  acos:{name:'Arcocoseno',sym:'arccos',inv:true,base:'cos'},
+  atan:{name:'Arcotangente',sym:'arctan',inv:true,base:'tan'}
+};
+const DIRECT_OF={asin:'sin',acos:'cos',atan:'tan'}, INV_OF={sin:'asin',cos:'acos',tan:'atan'};
+const state={fn:'sin',unit:'deg',prec:6,angleText:'30',valueText:'1/2',res:null};
+
+/* ---------- Intérprete de expresiones (sin eval) ---------- */
+function parseExpr(str){
+  let s=String(str).trim().toLowerCase()
+    .replace(/\s+/g,'').replace(/,/g,'.').replace(/°/g,'')
+    .replace(/[−–]/g,'-').replace(/×/g,'*').replace(/÷/g,'/')
+    .replace(/pi/g,'π').replace(/sqrt/g,'√').replace(/raiz/g,'√').replace(/rad$/,'');
+  if(!s) return {empty:true};
+  let i=0;
+  const peek=()=>s[i];
+  function expr(){let v=term();while(peek()==='+'||peek()==='-'){const op=s[i++];const r=term();v=op==='+'?v+r:v-r;}return v;}
+  function term(){let v=unary();
+    for(;;){const c=peek();
+      if(c==='*'||c==='/'){i++;const r=unary();if(c==='/'){if(r===0)throw new Error('división por cero');v/=r;}else v*=r;}
+      else if(c==='π'||c==='('||c==='√'||(c!==undefined&&/[0-9.]/.test(c))){v*=power();}
+      else break;}
+    return v;}
+  function unary(){if(peek()==='-'){i++;return -unary();}if(peek()==='+'){i++;return unary();}return power();}
+  function power(){const b=primary();if(peek()==='^'){i++;return Math.pow(b,unary());}return b;}
+  function primary(){
+    const c=peek();
+    if(c==='('){i++;const v=expr();if(peek()!==')')throw new Error('falta cerrar un paréntesis');i++;return v;}
+    if(c==='π'){i++;return PI;}
+    if(c==='√'){i++;const v=power();if(v<0)throw new Error('raíz cuadrada de un número negativo');return Math.sqrt(v);}
+    const m=/^(\d+\.?\d*|\.\d+)/.exec(s.slice(i));
+    if(m){i+=m[0].length;return parseFloat(m[0]);}
+    if(c===undefined)throw new Error('la expresión está incompleta');
+    throw new Error('carácter no reconocido «'+c+'»');
+  }
+  const v=expr();
+  if(i<s.length)throw new Error('carácter no reconocido «'+s[i]+'»');
+  if(!isFinite(v))throw new Error('el resultado no es un número finito');
+  return {value:v};
+}
+
+/* ---------- Formato numérico ---------- */
+function clean(v){if(!isFinite(v))return v;if(Math.abs(v)<1e-13)return 0;const r=Math.round(v);if(Math.abs(v-r)<1e-12*Math.max(1,Math.abs(v)))return r;return v;}
+function fmtFixed(v,p){v=clean(v);if(!isFinite(v))return '—';
+  if(Math.abs(v)>=1e10)return v.toExponential(p).replace(/-/g,'−');
+  let s=v.toFixed(p);if(/^-0(\.0*)?$/.test(s))s=s.slice(1);return s.replace('-','−');}
+function fmtT(v,p){p=p===undefined?state.prec:p;let s=fmtFixed(v,p);if(s.indexOf('.')>=0&&s.indexOf('e')<0)s=s.replace(/0+$/,'').replace(/\.$/,'');return s;}
+function eqSign(v,p){v=clean(v);return Math.abs(parseFloat(v.toFixed(p))-v)<1e-15?'=':'≈';}
+const snapDeg=d=>{const r=Math.round(d);return Math.abs(d-r)<1e-9?r:d;};
+function mod360(d){let r=d%360;if(r<0)r+=360;if(Math.abs(r-360)<1e-9||Math.abs(r)<1e-12)r=0;return snapDeg(r);}
+const gcd=(a,b)=>{while(b){[a,b]=[b,a%b];}return a;};
+const isInt=Number.isInteger;
+const hasFrac=deg=>isInt(deg)&&deg%15===0;
+function radFrac(deg){const n0=deg/15;if(n0===0)return '0';const g=gcd(Math.abs(n0),12);const n=n0/g,d=12/g,an=Math.abs(n);
+  return (n<0?'−':'')+(an===1?'':an)+'π'+(d===1?'':'/'+d);}
+const degTxt=d=>fmtT(d)+'°';
+const radShort=(deg,rad)=>hasFrac(deg)?radFrac(deg):fmtT(rad);
+const radTxt=(deg,rad)=>radShort(deg,rad)+' rad';
+const angTxt=(deg,rad)=>state.unit==='deg'?degTxt(deg):radTxt(deg,rad);
+const angTick=deg=>state.unit==='deg'?deg+'°':radFrac(deg);
+const neg=s=>s==='0'?'0':'−'+s;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Valores exactos ---------- */
+const REF={0:{v:0,s:'0'},30:{v:.5,s:'1/2'},45:{v:R2,s:'√2/2'},60:{v:R3,s:'√3/2'},90:{v:1,s:'1'}};
+const TANREF={0:{v:0,s:'0'},30:{v:T30,s:'√3/3'},45:{v:1,s:'1'},60:{v:T60,s:'√3'}};
+function trigAt(deg,rad){
+  const r=mod360(deg);
+  if(isInt(r)&&(r%30===0||r%45===0)){
+    let ref,ss,cs;
+    if(r<=90){ref=r;ss=1;cs=1;}else if(r<=180){ref=180-r;ss=1;cs=-1;}else if(r<=270){ref=r-180;ss=-1;cs=-1;}else{ref=360-r;ss=-1;cs=1;}
+    const S=REF[ref],C=REF[90-ref];
+    const o={r,exact:true,sin:clean(ss*S.v),cos:clean(cs*C.v),sinS:ss<0?neg(S.s):S.s,cosS:cs<0?neg(C.s):C.s,tan:null,tanS:null};
+    if(ref!==90){const T=TANREF[ref];o.tan=clean(ss*cs*T.v);o.tanS=ss*cs<0?neg(T.s):T.s;}
+    return o;
+  }
+  const rr=isInt(r)?r*PI/180:(Math.abs(rad)<TAU*1e6?((rad%TAU)+TAU)%TAU:r*PI/180);
+  let s=Math.sin(rr),c=Math.cos(rr);
+  if(Math.abs(s)<1e-15)s=0;if(Math.abs(c)<1e-15)c=0;
+  return {r,exact:false,sin:s,cos:c,tan:c===0?null:s/c,sinS:null,cosS:null,tanS:null};
+}
+function quadrant(r){
+  if(r===0)return{q:0,t:'Sobre el semieje X positivo'};
+  if(r===90)return{q:0,t:'Sobre el semieje Y positivo'};
+  if(r===180)return{q:0,t:'Sobre el semieje X negativo'};
+  if(r===270)return{q:0,t:'Sobre el semieje Y negativo'};
+  if(r<90)return{q:1,t:'Cuadrante I',ref:r};
+  if(r<180)return{q:2,t:'Cuadrante II',ref:180-r};
+  if(r<270)return{q:3,t:'Cuadrante III',ref:r-180};
+  return{q:4,t:'Cuadrante IV',ref:360-r};
+}
+function exactInvDeg(fn,x){
+  const ax=Math.abs(x),sg=x<0?-1:1;
+  const tbl=fn==='atan'?[[0,0],[T30,30],[1,45],[T60,60]]:[[0,0],[.5,30],[R2,45],[R3,60],[1,90]];
+  for(const [v,d] of tbl){if(Math.abs(ax-v)<1e-10){const a=sg*d;return fn==='acos'?90-a:(a===0?0:a);}}
+  return null;
+}
+function exactXStr(fn,x){
+  const ax=Math.abs(x),sg=x<0;
+  const tbl=fn==='atan'?[[0,'0'],[T30,'√3/3'],[1,'1'],[T60,'√3']]:[[0,'0'],[.5,'1/2'],[R2,'√2/2'],[R3,'√3/2'],[1,'1']];
+  for(const [v,s] of tbl)if(Math.abs(ax-v)<1e-10)return sg?neg(s):s;
+  return null;
+}
+
+/* ---------- Cálculo principal ---------- */
+function compute(){
+  const raw=$('#val').value;
+  let p;
+  try{p=parseExpr(raw);}catch(e){return {error:'No se pudo interpretar «'+esc(raw)+'»: '+e.message+'.'};}
+  if(p.empty)return {empty:true};
+  return FN[state.fn].inv?computeInverse(p.value,raw):computeDirect(p.value,raw);
+}
+function computeDirect(v,raw){
+  const fn=state.fn,base=FN[fn].base;
+  let deg,rad;
+  if(state.unit==='deg'){deg=snapDeg(v);rad=deg*PI/180;}
+  else{rad=v;deg=snapDeg(v*180/PI);if(isInt(deg))rad=deg*PI/180;}
+  const t=trigAt(deg,rad);
+  const res={kind:'direct',fn,base,raw,deg,rad,t,r:t.r,value:t[base],valueS:t[base+'S'],undef:t[base]===null};
+  if(res.undef){
+    res.error='La tangente no está definida en θ = '+angTxt(deg,rad)+': ahí cos(θ) = 0 y tan(θ) = sin(θ) / cos(θ) implicaría dividir por cero. La gráfica tiene una asíntota vertical en θ = 90° + k·180° (π/2 + kπ).';
+  }
+  return res;
+}
+function computeInverse(x,raw){
+  const fn=state.fn,base=FN[fn].base;
+  if((fn==='asin'||fn==='acos')&&(x<-1-1e-12||x>1+1e-12)){
+    return {kind:'inverse',fn,base,x,raw,domain:true,
+      error:FN[fn].sym+'(x) solo está definido para −1 ≤ x ≤ 1, porque '+(fn==='asin'?'el seno':'el coseno')+' de cualquier ángulo real está entre −1 y 1. No existe un ángulo real cuyo '+(fn==='asin'?'seno':'coseno')+' sea '+fmtT(x)+'.'};
+  }
+  const xc=fn==='atan'?x:Math.max(-1,Math.min(1,x));
+  let deg=exactInvDeg(fn,xc),rad,exact=deg!==null;
+  if(exact){rad=deg*PI/180;}
+  else{rad=fn==='asin'?Math.asin(xc):fn==='acos'?Math.acos(xc):Math.atan(xc);deg=snapDeg(rad*180/PI);if(isInt(deg))rad=deg*PI/180;}
+  const t=trigAt(deg,rad);
+  return {kind:'inverse',fn,base,x:xc,raw,xS:exactXStr(fn,xc),deg,rad,t,r:t.r,exact};
+}
+
+/* ---------- Render: resultados y procedimiento ---------- */
+function showMsg(elm,type,html){if(!html){elm.hidden=true;elm.innerHTML='';return;}elm.hidden=false;elm.className='msg '+type;elm.innerHTML=html;}
+function renderResult(res){
+  const box=$('#result'),meta=FN[state.fn],col=COL[meta.base],p=state.prec;
+  const head='<div class="rf"><span class="dot" style="background:'+col+'"></span>'+meta.name+' · '+meta.sym+(meta.inv?'(x)':'(θ)')+'</div>';
+  showMsg($('#msg'),'error',res&&res.error?res.error:'');
+  if(!res||res.empty){box.innerHTML=head+'<p class="empty" style="margin:8px 0 0">'+(meta.inv?'Ingresá un valor x y presioná Calcular.':'Ingresá un ángulo θ y presioná Calcular.')+'</p>';return;}
+  if(res.error&&!res.kind){box.innerHTML=head+'<p class="empty" style="margin:8px 0 0">Revisá el dato ingresado.</p>';return;}
+  let h=head;
+  if(res.kind==='direct'){
+    const a=angTxt(res.deg,res.rad);
+    if(res.undef){
+      h+='<div class="op">'+meta.sym+'('+a+') = no definida</div><div class="big" style="color:var(--err)">∄</div>';
+    }else{
+      const ex=res.valueS;
+      h+='<div class="op">'+meta.sym+'('+a+')'+(ex?' = '+ex:'')+'</div>';
+      h+='<div class="big" style="color:'+col+'">'+(ex&&ex.length>2?eqSign(res.value,p)+' ':'')+fmtFixed(res.value,p)+'</div>';
+    }
+    h+='<dl>';
+    h+='<dt>Operación</dt><dd>'+meta.sym+'('+degTxt(res.deg)+') = '+meta.sym+'('+radTxt(res.deg,res.rad)+')</dd>';
+    if(!res.undef){
+      h+='<dt>Valor exacto</dt><dd>'+(res.valueS||'— (no es un ángulo notable)')+'</dd>';
+      h+='<dt>Decimal ('+p+' dec.)</dt><dd>'+fmtFixed(res.value,p)+'</dd>';
+    }
+    h+='<dt>Conversión</dt><dd>'+degTxt(res.deg)+' = '+(hasFrac(res.deg)&&res.deg!==0?radFrac(res.deg)+' rad '+eqSign(res.rad,p)+' ':'')+fmtT(res.rad)+' rad</dd>';
+    const q=quadrant(res.r);
+    h+='<dt>Ubicación</dt><dd>'+q.t+(q.ref!==undefined?' · ref. '+degTxt(q.ref):'')+'</dd>';
+    if(res.r!==res.deg)h+='<dt>Coterminal</dt><dd>'+degTxt(res.deg)+' ≡ '+degTxt(res.r)+' (mód. 360°)</dd>';
+    h+='</dl>';
+  }else{
+    if(res.domain){
+      h+='<div class="op">'+meta.sym+'('+fmtT(res.x)+') = no definido en ℝ</div><div class="big" style="color:var(--err)">∄</div>';
+      box.innerHTML=h;return;
+    }
+    const xs=res.xS||fmtT(res.x);
+    const main=state.unit==='deg'?res.deg:res.rad;
+    const exactMain=res.exact?(state.unit==='deg'?degTxt(res.deg):radFrac(res.deg)+' rad'):null;
+    h+='<div class="op">'+meta.sym+'('+xs+')'+(exactMain?' = '+exactMain:'')+'</div>';
+    h+='<div class="big" style="color:'+col+'">'+(exactMain&&state.unit==='rad'&&res.deg!==0?'≈ ':'')+fmtFixed(main,p)+(state.unit==='deg'?'°':' rad')+'</div>';
+    h+='<dl>';
+    h+='<dt>Operación</dt><dd>θ = '+meta.sym+'('+fmtT(res.x)+')  ⇔  '+meta.base+'(θ) = '+fmtT(res.x)+'</dd>';
+    h+='<dt>En grados</dt><dd>'+fmtFixed(res.deg,p)+'°</dd>';
+    h+='<dt>En radianes</dt><dd>'+(res.exact&&res.deg!==0?radFrac(res.deg)+' ≈ ':'')+fmtFixed(res.rad,p)+' rad</dd>';
+    const rng={asin:'[−90°, 90°] = [−π/2, π/2]',acos:'[0°, 180°] = [0, π]',atan:'(−90°, 90°) = (−π/2, π/2)'}[state.fn];
+    h+='<dt>Rango principal</dt><dd>'+rng+'</dd>';
+    h+='<dt>Comprobación</dt><dd>'+meta.base+'('+angTxt(res.deg,res.rad)+') = '+fmtT(res.t[meta.base])+' ✓</dd>';
+    h+='</dl>';
+  }
+  box.innerHTML=h;
+}
+function renderSteps(res){
+  const ol=$('#steps'),meta=FN[state.fn],p=state.prec,out=[];
+  if(!res||res.empty){ol.innerHTML='<li>Elegí una función, ingresá '+(meta.inv?'el valor x':'el ángulo θ')+' y presioná <b>Calcular</b> (o elegí un ejemplo rápido).</li>';return;}
+  if(!res.kind){ol.innerHTML='<li>El dato ingresado no es un número válido. Podés escribir números (30, -45, 1,5), π, raíces (√2/2) y operaciones (+ − × / ^).</li>';return;}
+  if(res.kind==='direct'){
+    const d=res.deg,r=res.rad,q=quadrant(res.r);
+    if(state.unit==='deg')out.push('Conversión a radianes (JavaScript trabaja internamente en radianes): <code>θ = '+degTxt(d)+' · π/180 = '+(hasFrac(d)&&d!==0?radFrac(d)+' ≈ ':'')+fmtT(r)+' rad</code>');
+    else out.push('El ángulo ya está en radianes (unidad que usa JavaScript). En grados: <code>θ = '+(hasFrac(d)?radFrac(d):fmtT(r))+' · 180/π = '+degTxt(d)+'</code>');
+    if(res.r!==d){const k=Math.round((d-res.r)/360);out.push('Reducción a un ángulo coterminal en [0°, 360°): <code>'+degTxt(d)+' '+(k>=0?'− ':'+ ')+Math.abs(k)+'·360° = '+degTxt(res.r)+'</code>. Ambos ángulos tienen el mismo lado terminal y, por lo tanto, los mismos valores trigonométricos.');}
+    out.push('Ubicación del lado terminal: <b>'+q.t+'</b>'+(q.ref!==undefined?'. Ángulo de referencia: <code>'+degTxt(q.ref)+'</code>. Signos en este cuadrante: sin '+(res.t.sin>0?'+':'−')+', cos '+(res.t.cos>0?'+':'−')+', tan '+(res.t.sin*res.t.cos>0?'+':'−')+'.':'.'));
+    out.push('En la circunferencia unitaria el punto es <code>P = (cos θ, sin θ) = ('+(res.t.cosS||fmtT(res.t.cos))+', '+(res.t.sinS||fmtT(res.t.sin))+')</code>.');
+    if(res.base==='sin')out.push('El seno es la coordenada <b>y</b> de P: <code>sin('+angTxt(d,r)+') = '+(res.valueS?res.valueS+' '+eqSign(res.value,p)+' ':'')+fmtFixed(res.value,p)+'</code>');
+    if(res.base==='cos')out.push('El coseno es la coordenada <b>x</b> de P: <code>cos('+angTxt(d,r)+') = '+(res.valueS?res.valueS+' '+eqSign(res.value,p)+' ':'')+fmtFixed(res.value,p)+'</code>');
+    if(res.base==='tan'){
+      if(res.undef)out.push('La tangente es <code>y / x = sin θ / cos θ</code>. Como <code>cos θ = 0</code>, el cociente <b>no está definido</b>: el radio es paralelo a la recta tangente x = 1 y nunca la corta.');
+      else out.push('La tangente es el cociente <code>sin θ / cos θ = ('+(res.t.sinS||fmtT(res.t.sin))+') / ('+(res.t.cosS||fmtT(res.t.cos))+') = '+(res.valueS?res.valueS+' '+eqSign(res.value,p)+' ':'')+fmtFixed(res.value,p)+'</code>. Geométricamente es la altura donde la prolongación del radio corta la recta x = 1.');
+    }
+    if(!res.t.exact)out.push('Como no es un ángulo notable (múltiplo de 30° o 45°), el valor es una aproximación decimal con '+p+' decimales.');
+    else if(!res.undef)out.push('Es un ángulo notable: el valor exacto proviene de los triángulos 30°-60°-90° y 45°-45°-90°.');
+  }else{
+    const f=state.fn,b=FN[f].base;
+    const rng={asin:'[−90°, 90°]',acos:'[0°, 180°]',atan:'(−90°, 90°)'}[f];
+    out.push('Se busca el ángulo θ tal que <code>'+b+'(θ) = '+fmtT(res.x)+'</code>. Como '+b+' no es inyectiva en todos los reales, se toma el <b>valor principal</b> en '+rng+'.');
+    if(res.domain){out.push('<b>No hay solución real:</b> |x| = '+fmtT(Math.abs(res.x))+' > 1, y '+(b==='sin'?'el seno':'el coseno')+' de cualquier ángulo está en [−1, 1].');ol.innerHTML=out.map(s=>'<li>'+s+'</li>').join('');return;}
+    const jsn={asin:'Math.asin',acos:'Math.acos',atan:'Math.atan'}[f];
+    out.push('JavaScript devuelve el resultado en radianes: <code>'+jsn+'('+fmtT(res.x)+') = '+(res.exact&&res.deg!==0?radFrac(res.deg)+' ≈ ':'')+fmtT(res.rad)+' rad</code>');
+    out.push('Conversión a grados: <code>θ = '+fmtT(res.rad)+' · 180/π = '+degTxt(res.deg)+'</code>');
+    if(res.exact)out.push('Es un valor notable: <code>'+b+'('+degTxt(res.deg)+') = '+(res.t[b+'S']||fmtT(res.t[b]))+'</code>, por eso el ángulo es exacto.');
+    out.push('Comprobación: <code>'+b+'('+angTxt(res.deg,res.rad)+') = '+fmtT(res.t[b])+'</code> ✓');
+    const A=x=>state.unit==='deg'?degTxt(x):radShort(x,x*PI/180);
+    const per=state.unit==='deg'?' + k·360°':' + 2kπ', perT=state.unit==='deg'?' + k·180°':' + kπ';
+    if(f==='asin')out.push('Todas las soluciones (k ∈ ℤ): <code>θ = '+A(res.deg)+per+'</code> y <code>θ = '+A(snapDeg(180-res.deg))+per+'</code>');
+    if(f==='acos')out.push('Todas las soluciones (k ∈ ℤ): <code>θ = ±'+A(res.deg)+per+'</code>');
+    if(f==='atan')out.push('Todas las soluciones (k ∈ ℤ): <code>θ = '+A(res.deg)+perT+'</code> (la tangente tiene período 180°).');
+  }
+  ol.innerHTML=out.map(s=>'<li>'+s+'</li>').join('');
+}
+
+/* ---------- SVG helpers ---------- */
+function E(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!==undefined&&text!==null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+function pill(g,x,y,txt,color,W,H,anchor){
+  const w=txt.length*6.5+14,h=20;
+  let x0=anchor==='start'?x:anchor==='end'?x-w:x-w/2;
+  x0=Math.max(2,Math.min(W-w-2,x0));const y0=Math.max(2,Math.min(H-h-2,y-h/2));
+  E('rect',{x:x0,y:y0,width:w,height:h,rx:10,fill:'#fff',stroke:color,'stroke-width':1.3},g);
+  E('text',{x:x0+w/2,y:y0+14,'text-anchor':'middle','font-size':11.5,'font-weight':700,fill:color},g,txt);
+}
+function arrowDefs(svg,id,color){const d=E('defs',null,svg);const m=E('marker',{id,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},d);E('path',{d:'M0,0 L10,5 L0,10 z',fill:color},m);return d;}
+function niceStep(range,n){const raw=range/n,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p;return (f<1.5?1:f<3?2:f<7?5:10)*p;}
+
+/* ---------- 2. Gráfico cartesiano ---------- */
+function drawPlot(res){
+  const svg=$('#plot');svg.textContent='';
+  const W=540,H=390,m={l:56,r:14,t:16,b:44},pw=W-m.l-m.r,ph=H-m.t-m.b;
+  const fn=state.fn,meta=FN[fn],col=COL[meta.base];
+  const has=res&&res.kind;
+  let xmin,xmax,ymin,ymax,xt=[],yt=[],f,branches=[],asV=[],asH=[],dom=null;
+  if(!meta.inv){
+    const th=has?res.rad:null;
+    xmin=-PI;xmax=3*PI;
+    if(th!==null&&(th<xmin+0.05||th>xmax-0.05)){const k=Math.round((th-PI)/TAU);xmin=-PI+TAU*k;xmax=3*PI+TAU*k;}
+    if(meta.base==='tan'){ymin=-4;ymax=4;for(let v=-4;v<=4;v++)yt.push({v,s:String(v).replace('-','−')});}
+    else{ymin=-1.5;ymax=1.5;[-1,-0.5,0,0.5,1].forEach(v=>yt.push({v,s:String(v).replace('-','−')}));}
+    for(let k=Math.ceil(xmin/(PI/2)-1e-9);k*PI/2<=xmax+1e-9;k++)xt.push({v:k*PI/2,s:angTick(k*90)});
+    f=meta.base==='sin'?Math.sin:meta.base==='cos'?Math.cos:Math.tan;
+    if(meta.base==='tan'){
+      const L=Math.atan(14);
+      for(let k=Math.floor(xmin/PI)-1;k<=Math.ceil(xmax/PI)+1;k++){
+        const c=k*PI,lo=Math.max(xmin,c-L),hi=Math.min(xmax,c+L);if(hi>lo)branches.push([lo,hi]);
+        const as=c+PI/2;if(as>xmin+1e-9&&as<xmax-1e-9)asV.push(as);
+      }
+    }else branches.push([xmin,xmax]);
+  }else{
+    if(fn==='atan'){
+      const X=Math.max(6,has&&!res.domain?Math.abs(res.x)*1.2:0);xmin=-X;xmax=X;ymin=-PI/2-0.4;ymax=PI/2+0.4;
+      const st=niceStep(2*X,8);for(let v=Math.ceil(xmin/st)*st;v<=xmax+1e-9;v+=st)xt.push({v:clean(v),s:fmtT(clean(v),3).replace('−','−')});
+      [-90,-45,0,45,90].forEach(d=>yt.push({v:d*PI/180,s:angTick(d)}));
+      asH=[-PI/2,PI/2];f=Math.atan;branches.push([xmin,xmax]);
+    }else{
+      xmin=-1.35;xmax=1.35;dom=[-1,1];
+      if(has&&res.domain){const a=Math.abs(res.x)*1.12;if(a>1.35){xmin=-a;xmax=a;}}
+      [-1,-0.5,0,0.5,1].forEach(v=>xt.push({v,s:String(v).replace('-','−')}));
+      if(fn==='asin'){ymin=-PI/2-0.35;ymax=PI/2+0.35;[-90,-45,0,45,90].forEach(d=>yt.push({v:d*PI/180,s:angTick(d)}));f=Math.asin;}
+      else{ymin=-0.35;ymax=PI+0.35;[0,45,90,135,180].forEach(d=>yt.push({v:d*PI/180,s:angTick(d)}));f=Math.acos;}
+      branches.push([-1,1]);
+    }
+  }
+  const sx=x=>m.l+(x-xmin)/(xmax-xmin)*pw, sy=y=>m.t+(ymax-y)/(ymax-ymin)*ph;
+  const defs=arrowDefs(svg,'pa',COL.axis);
+  const cp=E('clipPath',{id:'pclip'},defs);E('rect',{x:m.l,y:m.t,width:pw,height:ph},cp);
+  E('rect',{x:m.l,y:m.t,width:pw,height:ph,fill:'#fbfcfe',stroke:COL.grid},svg);
+  if(dom){
+    if(xmin<dom[0])E('rect',{x:m.l,y:m.t,width:sx(dom[0])-m.l,height:ph,fill:'#f1f2f5'},svg);
+    if(xmax>dom[1])E('rect',{x:sx(dom[1]),y:m.t,width:m.l+pw-sx(dom[1]),height:ph,fill:'#f1f2f5'},svg);
+    E('text',{x:m.l+6,y:m.t+14,'font-size':10.5,fill:COL.muted},svg,'fuera del dominio');
+  }
+  const g=E('g',null,svg);
+  xt.forEach(t=>{const X=sx(t.v);E('line',{x1:X,x2:X,y1:m.t,y2:m.t+ph,stroke:COL.grid},g);E('text',{x:X,y:m.t+ph+16,'text-anchor':'middle','font-size':11,fill:COL.muted},g,t.s);});
+  yt.forEach(t=>{const Y=sy(t.v);E('line',{x1:m.l,x2:m.l+pw,y1:Y,y2:Y,stroke:COL.grid},g);E('text',{x:m.l-7,y:Y+4,'text-anchor':'end','font-size':11,fill:COL.muted},g,t.s);});
+  const xA=(xmin<0&&xmax>0)?sx(0):m.l, yA=(ymin<0&&ymax>0)?sy(0):m.t+ph;
+  E('line',{x1:m.l,x2:m.l+pw,y1:yA,y2:yA,stroke:COL.axis,'stroke-width':1.4,'marker-end':'url(#pa)'},svg);
+  E('line',{x1:xA,x2:xA,y1:m.t+ph,y2:m.t,stroke:COL.axis,'stroke-width':1.4,'marker-end':'url(#pa)'},svg);
+  E('text',{x:m.l+pw-4,y:yA-6,'text-anchor':'end','font-size':12,'font-weight':700,fill:COL.muted},svg,meta.inv?'x':'θ');
+  E('text',{x:xA+6,y:m.t+12,'font-size':12,'font-weight':700,fill:COL.muted},svg,meta.inv?'θ':'y');
+  E('text',{x:m.l+pw/2,y:H-6,'text-anchor':'middle','font-size':11,fill:COL.muted},svg,meta.inv?'x (valor de la razón)':'θ (ángulo, en '+(state.unit==='deg'?'grados':'radianes')+')');
+  const cg=E('g',{'clip-path':'url(#pclip)'},svg);
+  asV.forEach(a=>E('line',{x1:sx(a),x2:sx(a),y1:m.t,y2:m.t+ph,stroke:COL.tan,'stroke-dasharray':'5 5','stroke-opacity':.55,'stroke-width':1.3},cg));
+  asH.forEach(a=>E('line',{x1:m.l,x2:m.l+pw,y1:sy(a),y2:sy(a),stroke:COL.tan,'stroke-dasharray':'5 5','stroke-opacity':.55,'stroke-width':1.3},cg));
+  let d='';const N=480;
+  branches.forEach(([lo,hi])=>{for(let i=0;i<=N;i++){const x=lo+(hi-lo)*i/N;const y=f(x);d+=(i?'L':'M')+sx(x).toFixed(2)+' '+sy(y).toFixed(2);}});
+  E('path',{d,fill:'none',stroke:col,'stroke-width':2.6,'stroke-linejoin':'round'},cg);
+
+  const mk=E('g',null,svg);
+  let lab='';
+  if(has&&!meta.inv){
+    const px=sx(res.rad),angLabel='θ = '+angTxt(res.deg,res.rad);
+    if(res.undef){
+      E('line',{x1:px,x2:px,y1:m.t,y2:m.t+ph,stroke:'#b42318','stroke-width':2,'stroke-dasharray':'6 4'},mk);
+      E('circle',{cx:px,cy:yA,r:5,fill:'#fff',stroke:'#b42318','stroke-width':2},mk);
+      pill(mk,px,yA+22,angLabel,COL.ink,W,H);
+      pill(mk,px,m.t+18,'tan no definida (asíntota)','#b42318',W,H);
+      lab='θ = '+angTxt(res.deg,res.rad)+': tangente no definida';
+    }else{
+      const v=res.value,inR=v>=ymin&&v<=ymax,py=sy(Math.max(ymin,Math.min(ymax,v)));
+      E('line',{x1:px,x2:px,y1:yA,y2:py,stroke:col,'stroke-width':1.6,'stroke-dasharray':'5 4'},mk);
+      E('line',{x1:xA,x2:px,y1:py,y2:py,stroke:col,'stroke-width':1.6,'stroke-dasharray':'5 4'},mk);
+      E('circle',{cx:px,cy:yA,r:4,fill:COL.ink},mk);
+      if(inR){E('circle',{cx:xA,cy:py,r:4,fill:col},mk);E('circle',{cx:px,cy:py,r:6.5,fill:col,stroke:'#fff','stroke-width':2.5},mk);}
+      else{const up=v>ymax;E('path',{d:'M'+(px-8)+' '+(py+(up?12:-12))+' L'+px+' '+py+' L'+(px+8)+' '+(py+(up?12:-12))+' z',fill:col},mk);}
+      const valS=meta.sym+'(θ) = '+(res.valueS&&res.valueS.length>1?res.valueS:fmtT(v,4))+(inR?'':' (fuera de escala)');
+      const below=v>=0;
+      pill(mk,px,yA+(below?22:-22),angLabel,COL.ink,W,H);
+      pill(mk,px+(px>m.l+pw*0.65?-12:12),py+(below?-20:20),valS,col,W,H,px>m.l+pw*0.65?'end':'start');
+      lab='Punto ('+angTxt(res.deg,res.rad)+', '+fmtT(v,4)+')';
+    }
+  }
+  if(has&&meta.inv){
+    if(res.domain){
+      const px=sx(res.x);
+      E('line',{x1:px,x2:px,y1:m.t,y2:m.t+ph,stroke:'#b42318','stroke-width':2,'stroke-dasharray':'6 4'},mk);
+      pill(mk,px,m.t+18,'x = '+fmtT(res.x,4)+' fuera del dominio','#b42318',W,H);
+      lab='x fuera del dominio';
+    }else{
+      const px=sx(res.x),py=sy(res.rad);
+      E('line',{x1:px,x2:px,y1:yA,y2:py,stroke:col,'stroke-width':1.6,'stroke-dasharray':'5 4'},mk);
+      E('line',{x1:xA,x2:px,y1:py,y2:py,stroke:col,'stroke-width':1.6,'stroke-dasharray':'5 4'},mk);
+      E('circle',{cx:px,cy:yA,r:4,fill:COL.ink},mk);E('circle',{cx:xA,cy:py,r:4,fill:col},mk);
+      E('circle',{cx:px,cy:py,r:6.5,fill:col,stroke:'#fff','stroke-width':2.5},mk);
+      const right=px>m.l+pw*0.6;
+      pill(mk,px,yA+(res.rad>=0?22:-22),'x = '+(res.xS||fmtT(res.x,4)),COL.ink,W,H);
+      pill(mk,px+(right?-12:12),py-20,'θ = '+angTxt(res.deg,res.rad),col,W,H,right?'end':'start');
+      lab='Punto ('+fmtT(res.x,4)+', '+angTxt(res.deg,res.rad)+')';
+    }
+  }
+  const eq={sin:'y = sin(θ)',cos:'y = cos(θ)',tan:'y = tan(θ)',asin:'θ = arcsin(x), dominio [−1, 1]',acos:'θ = arccos(x), dominio [−1, 1]',atan:'θ = arctan(x), dominio ℝ'}[fn];
+  $('#plotSub').textContent='Curva '+eq+(lab?' · '+lab:'');
+  svg.setAttribute('aria-label','Gráfico de '+eq+(lab?'. '+lab:''));
+  let lg='<span><i class="sw" style="background:'+col+'"></i>'+eq.split(',')[0]+'</span><span><i class="sw" style="background:'+col+';height:2px;opacity:.8"></i>líneas auxiliares del punto calculado</span>';
+  if(asV.length)lg+='<span><i class="sw dash"></i>asíntotas verticales θ = π/2 + kπ (90° + k·180°)</span>';
+  if(asH.length)lg+='<span><i class="sw dash"></i>asíntotas horizontales θ = ±π/2 (±90°)</span>';
+  $('#plotLegend').innerHTML=lg;
+}
+
+/* ---------- 3. Circunferencia trigonométrica ---------- */
+function drawCircle(res){
+  const svg=$('#circle');svg.textContent='';
+  const S=380,c=S/2,R=118,L=1.5*R,X=x=>c+x*R,Y=y=>c-y*R;
+  const ok=res&&res.kind&&res.deg!==undefined;
+  const q=ok?quadrant(res.r).q:-1;
+  const defs=arrowDefs(svg,'ca',COL.axis);
+  const m2=E('marker',{id:'arcA',viewBox:'0 0 10 10',refX:6,refY:5,markerWidth:8,markerHeight:8,orient:'auto'},defs);E('path',{d:'M0,0 L10,5 L0,10 z',fill:COL.ink},m2);
+  const Q=[[1,c,c-L,'I','sin +  cos +'],[2,c-L,c-L,'II','sin +  cos −'],[3,c-L,c,'III','sin −  cos −'],[4,c,c,'IV','sin −  cos +']];
+  Q.forEach(([n,x,y,t,sg])=>{
+    E('rect',{x,y,width:L,height:L,fill:q===n?'#e9efff':'#f8f9fb'},svg);
+    const lx=n===1||n===4?x+L-8:x+8,ly=n<=2?y+18:y+L-22,an=n===1||n===4?'end':'start';
+    E('text',{x:lx,y:ly,'text-anchor':an,'font-size':14,'font-weight':800,fill:q===n?'#3730a3':'#a0a8b8'},svg,t);
+    E('text',{x:lx,y:ly+14,'text-anchor':an,'font-size':10,fill:q===n?'#3730a3':'#8a94a6'},svg,sg);
+  });
+  E('line',{x1:X(-1.5),x2:X(1.5),y1:c,y2:c,stroke:COL.axis,'stroke-width':1.4,'marker-end':'url(#ca)'},svg);
+  E('line',{x1:c,x2:c,y1:Y(-1.5),y2:Y(1.5),stroke:COL.axis,'stroke-width':1.4,'marker-end':'url(#ca)'},svg);
+  E('text',{x:X(1.5)-4,y:c+16,'text-anchor':'end','font-size':11,'font-weight':700,fill:COL.cos},svg,'x (cos)');
+  E('text',{x:c+6,y:Y(1.5)+10,'font-size':11,'font-weight':700,fill:COL.sin},svg,'y (sin)');
+  E('line',{x1:X(1),x2:X(1),y1:Y(-1.5),y2:Y(1.5),stroke:COL.tan,'stroke-opacity':.28,'stroke-dasharray':'4 4'},svg);
+  E('circle',{cx:c,cy:c,r:R,fill:'none',stroke:COL.ink,'stroke-width':1.8},svg);
+  [[1,0,'0°','0',8,-6,'start'],[0,1,'90°','π/2',6,-6,'start'],[-1,0,'180°','π',-8,-6,'end'],[0,-1,'270°','3π/2',6,16,'start']].forEach(([x,y,dg,rd,dx,dy,an])=>{
+    E('circle',{cx:X(x),cy:Y(y),r:2.5,fill:COL.ink},svg);
+    E('text',{x:X(x)+dx,y:Y(y)+dy,'text-anchor':an,'font-size':10.5,fill:COL.muted},svg,state.unit==='deg'?dg:rd);
+  });
+  E('text',{x:X(1)+4,y:c+14,'font-size':10,fill:COL.muted},svg,'1');E('text',{x:X(-1)-4,y:c+14,'text-anchor':'end','font-size':10,fill:COL.muted},svg,'−1');
+  E('text',{x:c-5,y:c+14,'text-anchor':'end','font-size':10,fill:COL.muted},svg,'O');
+  const info=$('#circleInfo');
+  $$('#dirChips span').forEach(s=>s.classList.remove('on'));
+  if(!ok){info.innerHTML='<dt>Estado</dt><dd>'+(res&&res.domain?'Sin ángulo real para representar.':'Ingresá un dato para ver el ángulo.')+'</dd>';svg.setAttribute('aria-label','Circunferencia unitaria sin ángulo marcado');return;}
+  const deg=res.deg,rad=res.rad,t=res.t,cs=t.cos,sn=t.sin;
+  if(deg>0)$('#dirChips [data-dir=pos]').classList.add('on');else if(deg<0)$('#dirChips [data-dir=neg]').classList.add('on');
+  // arco (espiral si hay más de una vuelta)
+  if(Math.abs(rad)>1e-9){
+    const sweep=Math.sign(rad)*Math.min(Math.abs(rad),6*TAU),n=Math.max(24,Math.ceil(Math.abs(sweep)/0.03));let d='';
+    for(let i=0;i<=n;i++){const a=sweep*i/n,rr=0.22+0.045*Math.abs(a)/TAU;d+=(i?'L':'M')+X(rr*Math.cos(a)).toFixed(2)+' '+Y(rr*Math.sin(a)).toFixed(2);}
+    E('path',{d,fill:'none',stroke:COL.ink,'stroke-width':1.8,'marker-end':'url(#arcA)'},svg);
+    const mid=Math.abs(rad)<=TAU?rad/2:rad-Math.sign(rad)*0.5,rl=0.42+0.045*Math.min(Math.abs(rad),6*TAU)/TAU;
+    E('text',{x:X(rl*Math.cos(mid)),y:Y(rl*Math.sin(mid))+4,'text-anchor':'middle','font-size':12,'font-weight':700,fill:COL.ink,stroke:'#fff','stroke-width':3,'paint-order':'stroke'},svg,'θ');
+  }
+  // tangente
+  let tanNote='';
+  if(t.tan!==null){
+    if(Math.abs(t.tan)<=1.45){
+      E('line',{x1:c,y1:c,x2:X(1),y2:Y(t.tan),stroke:COL.tan,'stroke-width':1.3,'stroke-dasharray':'4 3'},svg);
+      E('line',{x1:X(1),y1:c,x2:X(1),y2:Y(t.tan),stroke:COL.tan,'stroke-width':3.5,'stroke-linecap':'round'},svg);
+      E('circle',{cx:X(1),cy:Y(t.tan),r:3.5,fill:COL.tan},svg);
+      E('text',{x:X(1)+6,y:Y(t.tan/2)+4,'font-size':11,'font-weight':700,fill:COL.tan,stroke:'#fff','stroke-width':3,'paint-order':'stroke'},svg,'tan');
+    }else tanNote='fuera de escala';
+  }
+  // coseno, seno, proyecciones
+  E('line',{x1:X(cs),y1:Y(sn),x2:X(0),y2:Y(sn),stroke:'#8a94a6','stroke-width':1.2,'stroke-dasharray':'4 3'},svg);
+  E('line',{x1:c,y1:c,x2:c,y2:Y(sn),stroke:COL.sin,'stroke-width':2,'stroke-opacity':.45},svg);
+  E('line',{x1:c,y1:c,x2:X(cs),y2:Y(sn),stroke:COL.ink,'stroke-width':2.2},svg);
+  E('line',{x1:c,y1:c,x2:X(cs),y2:c,stroke:COL.cos,'stroke-width':4.5,'stroke-linecap':'round'},svg);
+  E('line',{x1:X(cs),y1:c,x2:X(cs),y2:Y(sn),stroke:COL.sin,'stroke-width':4.5,'stroke-linecap':'round'},svg);
+  if(Math.abs(cs)>0.12)E('text',{x:X(cs/2),y:c+(sn>=0?16:-8),'text-anchor':'middle','font-size':11,'font-weight':700,fill:COL.cos,stroke:'#fff','stroke-width':3,'paint-order':'stroke'},svg,'cos');
+  if(Math.abs(sn)>0.12)E('text',{x:X(cs)+(cs>=0?6:-6),y:Y(sn/2)+4,'text-anchor':cs>=0?'start':'end','font-size':11,'font-weight':700,fill:COL.sin,stroke:'#fff','stroke-width':3,'paint-order':'stroke'},svg,'sin');
+  E('circle',{cx:X(cs),cy:Y(sn),r:6.5,fill:COL.ink,stroke:'#fff','stroke-width':2.5},svg);
+  const pt='P('+(t.cosS||fmtT(cs,3))+', '+(t.sinS||fmtT(sn,3))+')';
+  pill(svg,X(cs*1.2)+(cs>=0?2:-2),Y(sn*1.2)+(sn>=0?-4:6),pt,COL.ink,S,S,Math.abs(cs)<0.2?'middle':cs>=0?'start':'end');
+  // info
+  const p=state.prec,qq=quadrant(t.r),turns=Math.floor(Math.abs(deg)/360);
+  let h='';
+  h+='<dt><span class="dot" style="background:'+COL.ink+'"></span>Ángulo</dt><dd>θ = '+degTxt(deg)+' = '+radTxt(deg,rad)+'</dd>';
+  h+='<dt><span class="dot" style="background:'+COL.cos+'"></span>cos θ = x</dt><dd>'+(t.cosS?t.cosS+' '+eqSign(cs,p)+' ':'')+fmtFixed(cs,p)+'</dd>';
+  h+='<dt><span class="dot" style="background:'+COL.sin+'"></span>sin θ = y</dt><dd>'+(t.sinS?t.sinS+' '+eqSign(sn,p)+' ':'')+fmtFixed(sn,p)+'</dd>';
+  h+='<dt><span class="dot" style="background:'+COL.tan+'"></span>tan θ = y / x</dt><dd>'+(t.tan===null?'no definida (x = 0)':(t.tanS?t.tanS+' '+eqSign(t.tan,p)+' ':'')+fmtFixed(t.tan,p)+(tanNote?' ('+tanNote+')':''))+'</dd>';
+  h+='<dt>Identidad</dt><dd>sin²θ + cos²θ = '+fmtT(sn*sn+cs*cs,10)+'</dd>';
+  h+='<dt>Ubicación</dt><dd>'+qq.t+(turns?' · '+turns+' vuelta'+(turns>1?'s':'')+' completa'+(turns>1?'s':''):'')+'</dd>';
+  info.innerHTML=h;
+  svg.setAttribute('aria-label','Circunferencia unitaria con θ = '+degTxt(deg)+', P = ('+fmtT(cs,4)+', '+fmtT(sn,4)+'), '+qq.t);
+}
+
+/* ---------- Ciclo principal ---------- */
+function run(){
+  const res=compute();state.res=res;
+  renderResult(res);renderSteps(res);drawPlot(res);drawCircle(res);
+}
+function syncUI(){
+  const meta=FN[state.fn];
+  $$('.fn').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.fn===state.fn)));
+  $$('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.unit===state.unit)));
+  $('#valLabel').textContent=meta.inv?'Valor x de la función ('+meta.base+' θ = x)':'Ángulo θ';
+  $('#valSuffix').textContent=meta.inv?'x':(state.unit==='deg'?'°':'rad');
+  $('#valHint').textContent=meta.inv?(state.fn==='atan'?'Cualquier número real. Ej.: 1, √3, -0,5':'Entre −1 y 1. Ej.: 1/2, √2/2, -√3/2'):(state.unit==='deg'?'En grados. Ej.: 30, -45, 390, 22,5':'En radianes. Ej.: π/6, 2π/3, -π/4, 1,2');
+  $('#val').value=meta.inv?state.valueText:state.angleText;
+  renderExamples();
+}
+function renderExamples(){
+  $('#exChips').innerHTML=[30,45,60,90,180,270,360].map(d=>'<button type="button" class="chip" data-ex="'+d+'">'+(state.unit==='deg'?d+'°':radFrac(d))+'</button>').join('');
+}
+function angleToInput(deg,rad){return state.unit==='deg'?fmtT(deg,10):(hasFrac(deg)?radFrac(deg).replace('−','-'):fmtT(rad,10));}
+function storeInput(){const v=$('#val').value;if(FN[state.fn].inv)state.valueText=v;else state.angleText=v;}
+
+$$('.fn').forEach(b=>b.addEventListener('click',()=>{
+  const nf=b.dataset.fn,of=state.fn;if(nf===of)return;storeInput();
+  const r=state.res,oInv=FN[of].inv,nInv=FN[nf].inv;
+  if(r&&r.kind&&!r.error){
+    if(!oInv&&nInv&&r.value!==null){const b2=FN[nf].base,v=r.t[b2];if(v!==null)state.valueText=(r.t[b2+'S']||fmtT(v,10)).replace(/−/g,'-');}
+    if(oInv&&!nInv)state.angleText=angleToInput(r.deg,r.rad);
+  }
+  state.fn=nf;syncUI();run();
+}));
+$$('.seg button').forEach(b=>b.addEventListener('click',()=>{
+  const nu=b.dataset.unit;if(nu===state.unit)return;storeInput();
+  if(!FN[state.fn].inv){try{const p=parseExpr(state.angleText);if(!p.empty){
+    if(nu==='rad'){const d=snapDeg(p.value);state.angleText=hasFrac(d)?radFrac(d).replace('−','-'):fmtT(d*PI/180,10);}
+    else state.angleText=fmtT(snapDeg(p.value*180/PI),10);}}catch(e){}}
+  state.unit=nu;syncUI();run();
+}));
+$('#val').addEventListener('input',()=>{storeInput();run();});
+$('#val').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();run();}});
+$('#btnCalc').addEventListener('click',()=>{storeInput();run();});
+$('#btnClear').addEventListener('click',()=>{$('#val').value='';storeInput();run();$('#val').focus();});
+$('#prec').addEventListener('change',e=>{state.prec=+e.target.value;run();runPyth();});
+$$('.keys button').forEach(b=>b.addEventListener('click',()=>{
+  const inp=$('#val'),s=inp.selectionStart??inp.value.length,e=inp.selectionEnd??inp.value.length,ins=b.dataset.ins;
+  inp.value=inp.value.slice(0,s)+ins+inp.value.slice(e);inp.focus();inp.setSelectionRange(s+ins.length,s+ins.length);storeInput();run();
+}));
+$('#exChips').addEventListener('click',e=>{
+  const b=e.target.closest('[data-ex]');if(!b)return;const d=+b.dataset.ex;
+  if(FN[state.fn].inv)state.fn=DIRECT_OF[state.fn];
+  state.angleText=state.unit==='deg'?String(d):radFrac(d).replace('−','-');
+  syncUI();run();
+});
+
+/* ---------- 4. Pitágoras ---------- */
+const PF={co:$('#pCO'),ca:$('#pCA'),h:$('#pH'),ang:$('#pAng')};
+const PNAME={co:'cateto opuesto (CO)',ca:'cateto adyacente (CA)',h:'hipotenusa (H)',ang:'ángulo θ'};
+function setAuto(k,v){const el=PF[k];el.value=v===null?'':fmtT(v,Math.max(state.prec,4));el.classList.toggle('auto',v!==null);el.dataset.auto=v===null?'0':'1';
+  const lab=document.querySelector('label[for="'+el.id+'"]');const tg=lab.querySelector('.tag');if(v!==null&&!tg){lab.insertAdjacentHTML('beforeend','<span class="tag">calculado</span>');}if(v===null&&tg)tg.remove();}
+function clearAutos(){for(const k in PF)if(PF[k].dataset.auto==='1')setAuto(k,null);}
+function runPyth(){
+  const g={},errs=[];
+  for(const k in PF){
+    const el=PF[k];if(el.dataset.auto==='1')continue;const raw=el.value.trim();if(!raw)continue;
+    let v;try{const p=parseExpr(raw);if(p.empty)continue;v=p.value;}catch(e){errs.push('El '+PNAME[k]+' no es un número válido ('+e.message+').');continue;}
+    if(k==='ang'){if(!(v>0&&v<90))errs.push('El ángulo θ de un triángulo rectángulo debe ser agudo: 0° < θ < 90°.');else g.ang=v;}
+    else if(v<0)errs.push('El '+PNAME[k]+' no puede ser negativo.');
+    else if(v===0)errs.push('El '+PNAME[k]+' debe ser mayor que 0.');
+    else g[k]=v;
+  }
+  const msg=$('#pMsg'),out=$('#pRes'),st=$('#pSteps');
+  const fail=(html,type)=>{clearAutos();showMsg(msg,type||'error',html);out.innerHTML='<dt>—</dt><dd>Sin resultados.</dd>';drawTri(null);};
+  if(errs.length){fail(errs.join('<br>'));st.innerHTML='<li>Corregí los datos marcados para continuar.</li>';return;}
+  const n=['co','ca','h'].filter(k=>g[k]!==undefined).length;
+  let co,ca,h,steps=[],computed={};
+  const F=v=>fmtT(v,Math.max(state.prec,4));
+  if(n>=2){
+    if(g.h!==undefined){
+      if(g.co!==undefined&&g.h<=g.co){fail('Datos incompatibles: la hipotenusa ('+F(g.h)+') debe ser mayor que el cateto opuesto ('+F(g.co)+'). Con esos valores no existe un triángulo rectángulo (CA² sería '+F(g.h*g.h-g.co*g.co)+', y no hay raíz real de un número negativo o cero).');st.innerHTML='<li>En un triángulo rectángulo la hipotenusa es siempre el lado más largo.</li>';return;}
+      if(g.ca!==undefined&&g.h<=g.ca){fail('Datos incompatibles: la hipotenusa ('+F(g.h)+') debe ser mayor que el cateto adyacente ('+F(g.ca)+'). Con esos valores no existe un triángulo rectángulo.');st.innerHTML='<li>En un triángulo rectángulo la hipotenusa es siempre el lado más largo.</li>';return;}
+    }
+    if(n===3){
+      co=g.co;ca=g.ca;h=g.h;const L=h*h,Rr=co*co+ca*ca;
+      if(Math.abs(L-Rr)>1e-6*Math.max(L,Rr)){fail('Datos incompatibles: H² = '+F(L)+' pero CO² + CA² = '+F(Rr)+'. Los tres lados no forman un triángulo rectángulo. Borrá uno de ellos para que se calcule.');st.innerHTML='<li>Se verifica H² = CO² + CA². Como no se cumple, no se calcula nada.</li>';return;}
+      steps.push('Se verifican los tres lados: <code>H² = '+F(L)+'</code> y <code>CO² + CA² = '+F(co*co)+' + '+F(ca*ca)+' = '+F(Rr)+'</code> ✓');
+    }else if(g.h===undefined){
+      co=g.co;ca=g.ca;h=Math.sqrt(co*co+ca*ca);computed.h=h;
+      steps.push('Hipotenusa: <code>H = √(CO² + CA²) = √('+F(co)+'² + '+F(ca)+'²) = √'+F(co*co+ca*ca)+' = '+F(h)+'</code>');
+    }else if(g.ca===undefined){
+      co=g.co;h=g.h;ca=Math.sqrt(h*h-co*co);computed.ca=ca;
+      steps.push('Cateto adyacente: <code>CA = √(H² − CO²) = √('+F(h)+'² − '+F(co)+'²) = √'+F(h*h-co*co)+' = '+F(ca)+'</code>');
+    }else{
+      ca=g.ca;h=g.h;co=Math.sqrt(h*h-ca*ca);computed.co=co;
+      steps.push('Cateto opuesto: <code>CO = √(H² − CA²) = √('+F(h)+'² − '+F(ca)+'²) = √'+F(h*h-ca*ca)+' = '+F(co)+'</code>');
+    }
+    const thS=Math.atan2(co,ca)*180/PI;
+    if(g.ang!==undefined){
+      if(Math.abs(thS-g.ang)>0.01){fail('Datos incompatibles: con esos lados el ángulo es θ = arctan(CO/CA) ≈ '+fmtT(thS,4)+'°, pero se ingresó θ = '+fmtT(g.ang,4)+'°. Borrá el ángulo o uno de los lados.');st.innerHTML='<li>Con dos lados el triángulo ya queda determinado; un ángulo extra debe coincidir.</li>';return;}
+      steps.push('El ángulo ingresado coincide con el que resulta de los lados ✓');
+    }else computed.ang=thS;
+  }else if(n===1&&g.ang!==undefined){
+    const a=g.ang*PI/180,s=Math.sin(a),c=Math.cos(a),t=Math.tan(a);
+    steps.push('Con θ = '+fmtT(g.ang)+'°: <code>sin θ = '+F(s)+'</code>, <code>cos θ = '+F(c)+'</code>, <code>tan θ = '+F(t)+'</code>');
+    if(g.h!==undefined){h=g.h;co=h*s;ca=h*c;computed.co=co;computed.ca=ca;
+      steps.push('<code>CO = H · sin θ = '+F(h)+' · '+F(s)+' = '+F(co)+'</code>');steps.push('<code>CA = H · cos θ = '+F(h)+' · '+F(c)+' = '+F(ca)+'</code>');}
+    else if(g.co!==undefined){co=g.co;h=co/s;ca=co/t;computed.h=h;computed.ca=ca;
+      steps.push('<code>H = CO / sin θ = '+F(co)+' / '+F(s)+' = '+F(h)+'</code>');steps.push('<code>CA = CO / tan θ = '+F(co)+' / '+F(t)+' = '+F(ca)+'</code>');}
+    else{ca=g.ca;h=ca/c;co=ca*t;computed.h=h;computed.co=co;
+      steps.push('<code>H = CA / cos θ = '+F(ca)+' / '+F(c)+' = '+F(h)+'</code>');steps.push('<code>CO = CA · tan θ = '+F(ca)+' · '+F(t)+' = '+F(co)+'</code>');}
+    steps.push('Verificación con Pitágoras: <code>CO² + CA² = '+F(co*co+ca*ca)+' = H² = '+F(h*h)+'</code> ✓');
+  }else{
+    clearAutos();drawTri(null);out.innerHTML='<dt>—</dt><dd>Sin resultados.</dd>';
+    if(n===0&&g.ang===undefined){showMsg(msg,'',null);st.innerHTML='<li>Ingresá dos lados (por ejemplo CO y CA), o un lado y el ángulo θ.</li>';return;}
+    if(n===0){const a=g.ang*PI/180;showMsg(msg,'info','Con solo el ángulo se conocen las razones (sin θ = '+F(Math.sin(a))+', cos θ = '+F(Math.cos(a))+', tan θ = '+F(Math.tan(a))+') pero no el tamaño del triángulo: agregá un lado.');}
+    else showMsg(msg,'info','Falta un dato: ingresá un segundo lado o el ángulo θ.');
+    st.innerHTML='<li>Datos insuficientes: un triángulo rectángulo queda determinado por dos lados, o por un lado y un ángulo agudo.</li>';return;
+  }
+  showMsg(msg,'',null);
+  for(const k of ['co','ca','h','ang'])if(g[k]===undefined)setAuto(k,computed[k]!==undefined?computed[k]:null);else{PF[k].classList.remove('auto');PF[k].dataset.auto='0';}
+  const sn=co/h,cs=ca/h,tn=co/ca,th=Math.atan2(co,ca),thd=snapDeg(th*180/PI);
+  steps.push('Razones: <code>sin θ = CO/H = '+F(co)+'/'+F(h)+' = '+F(sn)+'</code>, <code>cos θ = CA/H = '+F(ca)+'/'+F(h)+' = '+F(cs)+'</code>, <code>tan θ = CO/CA = '+F(co)+'/'+F(ca)+' = '+F(tn)+'</code>');
+  if(g.ang===undefined)steps.push('Ángulo: <code>θ = arctan(CO/CA) = arctan('+F(tn)+') = '+fmtT(thd)+'°</code>; el otro ángulo agudo es <code>90° − θ = '+fmtT(snapDeg(90-thd))+'°</code>');
+  st.innerHTML=steps.map(s=>'<li>'+s+'</li>').join('');
+  const p=state.prec;
+  out.innerHTML=
+    '<dt class="lco">Cateto opuesto</dt><dd>CO = '+F(co)+'</dd>'+
+    '<dt class="lca">Cateto adyacente</dt><dd>CA = '+F(ca)+'</dd>'+
+    '<dt>Hipotenusa</dt><dd>H = '+F(h)+'</dd>'+
+    '<dt style="color:var(--sin)">sin(θ)</dt><dd>CO / H = '+fmtFixed(sn,p)+'</dd>'+
+    '<dt style="color:var(--cos)">cos(θ)</dt><dd>CA / H = '+fmtFixed(cs,p)+'</dd>'+
+    '<dt style="color:var(--tan)">tan(θ)</dt><dd>CO / CA = '+fmtFixed(tn,p)+'</dd>'+
+    '<dt>Ángulo θ</dt><dd>'+fmtT(thd)+'° = '+(hasFrac(thd)?radFrac(thd)+' ≈ ':'')+fmtT(th)+' rad</dd>'+
+    '<dt>Ángulo 90° − θ</dt><dd>'+fmtT(snapDeg(90-thd))+'°</dd>'+
+    '<dt>Área</dt><dd>CO · CA / 2 = '+F(co*ca/2)+'</dd>'+
+    '<dt>Perímetro</dt><dd>'+F(co+ca+h)+'</dd>';
+  drawTri({co,ca,h,th,thd});
+}
+function drawTri(d){
+  const svg=$('#tri');svg.textContent='';
+  const W=460,H=320,faded=!d;const D=d||{co:3,ca:4,h:5,th:Math.atan2(3,4),thd:36.87};
+  const maxW=W-170,maxH=H-100,s=Math.min(maxW/D.ca,maxH/D.co);
+  const w=Math.max(4,D.ca*s),hh=Math.max(4,D.co*s);
+  const Ax=(W-w)/2-14,Ay=50+(maxH+hh)/2,Cx=Ax+w,Cy=Ay,Bx=Cx,By=Ay-hh;
+  const g=E('g',{opacity:faded?.35:1},svg);
+  E('polygon',{points:Ax+','+Ay+' '+Cx+','+Cy+' '+Bx+','+By,fill:'#f3f6ff'},g);
+  const q=Math.min(16,w/3,hh/3);E('path',{d:'M'+(Cx-q)+' '+Cy+' L'+(Cx-q)+' '+(Cy-q)+' L'+Cx+' '+(Cy-q),fill:'none',stroke:COL.muted,'stroke-width':1.3},g);
+  E('line',{x1:Ax,y1:Ay,x2:Cx,y2:Cy,stroke:COL.cos,'stroke-width':4,'stroke-linecap':'round'},g);
+  E('line',{x1:Cx,y1:Cy,x2:Bx,y2:By,stroke:COL.sin,'stroke-width':4,'stroke-linecap':'round'},g);
+  E('line',{x1:Ax,y1:Ay,x2:Bx,y2:By,stroke:COL.ink,'stroke-width':4,'stroke-linecap':'round'},g);
+  const ra=Math.min(40,w*0.45,Math.hypot(w,hh)*0.4),th=D.th;
+  E('path',{d:'M'+(Ax+ra)+' '+Ay+' A'+ra+' '+ra+' 0 0 0 '+(Ax+ra*Math.cos(th))+' '+(Ay-ra*Math.sin(th)),fill:'rgba(55,48,163,.12)',stroke:'#3730a3','stroke-width':1.6},g);
+  E('text',{x:Ax+(ra+16)*Math.cos(th/2),y:Ay-(ra+16)*Math.sin(th/2)+4,'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#3730a3'},g,'θ');
+  const F=v=>fmtT(v,3);
+  E('text',{x:(Ax+Cx)/2,y:Ay+24,'text-anchor':'middle','font-size':13,'font-weight':700,fill:COL.cos},g,'CA'+(faded?'':' = '+F(D.ca)));
+  E('text',{x:Cx+10,y:(Cy+By)/2+4,'font-size':13,'font-weight':700,fill:COL.sin},g,'CO'+(faded?'':' = '+F(D.co)));
+  const len=Math.hypot(w,hh),nx=-hh/len,ny=-w/len;
+  E('text',{x:(Ax+Bx)/2+nx*16,y:(Ay+By)/2+ny*16+4,'text-anchor':'end','font-size':13,'font-weight':700,fill:COL.ink},g,'H'+(faded?'':' = '+F(D.h)));
+  E('text',{x:Ax-8,y:Ay+4,'text-anchor':'end','font-size':11,fill:COL.muted},g,'A');
+  E('text',{x:Cx+8,y:Cy+14,'font-size':11,fill:COL.muted},g,'C (90°)');
+  E('text',{x:Bx+8,y:By-4,'font-size':11,fill:COL.muted},g,'B'+(faded?'':' ('+fmtT(snapDeg(90-D.thd),2)+'°)'));
+  if(faded)E('text',{x:W/2,y:22,'text-anchor':'middle','font-size':12,fill:COL.muted},svg,'Triángulo de referencia: ingresá datos para dibujarlo a escala');
+  else E('text',{x:W/2,y:22,'text-anchor':'middle','font-size':12,fill:COL.muted},svg,'θ = '+fmtT(D.thd,2)+'° · dibujo a escala');
+  svg.setAttribute('aria-label',faded?'Triángulo rectángulo de referencia':'Triángulo rectángulo con CO '+F(D.co)+', CA '+F(D.ca)+', H '+F(D.h));
+}
+for(const k in PF){
+  const el=PF[k];el.dataset.auto='0';
+  el.addEventListener('input',()=>{if(el.dataset.auto==='1'){el.dataset.auto='0';el.classList.remove('auto');const tg=document.querySelector('label[for="'+el.id+'"] .tag');if(tg)tg.remove();}runPyth();});
+  el.addEventListener('focus',()=>{if(el.dataset.auto==='1')el.select();});
+  el.addEventListener('keydown',e=>{if(e.key==='Enter')runPyth();});
+}
+$('#pCalc').addEventListener('click',runPyth);
+$('#pClear').addEventListener('click',()=>{for(const k in PF){setAuto(k,null);PF[k].value='';}runPyth();});
+$$('[data-pex]').forEach(b=>b.addEventListener('click',()=>{const o=JSON.parse(b.dataset.pex);for(const k in PF){setAuto(k,null);PF[k].value=o[k]||'';}runPyth();}));
+
+/* ---------- Inicio ---------- */
+syncUI();run();
+PF.co.value='3';PF.ca.value='4';runPyth();
+window.__trig={parseExpr,trigAt,computeDirect,computeInverse,state,run,runPyth,PF};
+})();
+</script>
+</body>
+</html>
